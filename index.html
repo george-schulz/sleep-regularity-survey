@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sleep Regularity Survey</title>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <style>
+    :root {
+      --very-irregular: #ef4444;
+      --irregular: #f59e0b;
+      --moderate: #3b82f6;
+      --regular: #10b981;
+      --bg: #0f172a;
+      --card: #1e293b;
+      --border: #334155;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --accent: #6366f1;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 2.5rem 1.25rem 4rem;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 660px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .header .icon {
+      font-size: 2.4rem;
+      margin-bottom: 0.5rem;
+      line-height: 1;
+    }
+
+    .header h1 {
+      font-size: 1.7rem;
+      font-weight: 700;
+      margin-bottom: 0.3rem;
+    }
+
+    .header p {
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.55;
+    }
+
+    .progress-track {
+      height: 4px;
+      background: var(--border);
+      border-radius: 99px;
+      margin-bottom: 2rem;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 99px;
+      transition: width 0.35s ease;
+    }
+
+    .q-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .q-num {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--accent);
+      margin-bottom: 0.45rem;
+    }
+
+    .q-text {
+      font-size: 0.97rem;
+      font-weight: 500;
+      line-height: 1.55;
+      margin-bottom: 1rem;
+    }
+
+    input[type="time"] {
+      width: 100%;
+      background: #111827;
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 9px;
+      padding: 0.8rem 0.9rem;
+      font-size: 1rem;
+      color-scheme: dark;
+    }
+
+    input[type="time"]:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    }
+
+    .hint {
+      margin-top: 0.65rem;
+      color: var(--muted);
+      font-size: 0.78rem;
+      line-height: 1.45;
+    }
+
+    .btn-primary, .btn-outline {
+      width: 100%;
+      padding: 0.95rem;
+      border-radius: 11px;
+      font-size: 0.97rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s, opacity 0.2s;
+      border: none;
+      margin-top: 0.5rem;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: #4f46e5;
+      transform: translateY(-1px);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--accent);
+      border: 2px solid var(--accent);
+    }
+
+    .btn-outline:hover {
+      background: rgba(99, 102, 241, 0.1);
+      transform: translateY(-1px);
+    }
+
+    .config-warn {
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      border-radius: 9px;
+      padding: 0.85rem 1rem;
+      font-size: 0.82rem;
+      color: #fcd34d;
+      margin-bottom: 1.25rem;
+      text-align: center;
+      display: none;
+      line-height: 1.45;
+    }
+
+    .results-header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.3rem 0.9rem;
+      border-radius: 99px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 0.75rem;
+    }
+
+    .big-score {
+      font-size: 4rem;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 0.3rem;
+    }
+
+    .score-label {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .type-name {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .type-desc {
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.65;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    .results-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .results-card h3 {
+      font-size: 0.97rem;
+      font-weight: 600;
+      margin-bottom: 0.2rem;
+    }
+
+    .results-card .sub {
+      color: var(--muted);
+      font-size: 0.82rem;
+      margin-bottom: 1.1rem;
+      line-height: 1.5;
+    }
+
+    .resp-count {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+    }
+
+    .resp-count strong {
+      color: var(--text);
+    }
+
+    .chart-wrap {
+      position: relative;
+      height: 230px;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem 1rem;
+      margin-top: 1rem;
+      justify-content: center;
+    }
+
+    .leg-item {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .leg-swatch {
+      width: 10px;
+      height: 10px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+
+    .view {
+      animation: fadeUp 0.4s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+
+    <div id="v-survey" class="view">
+      <div class="header">
+        <div class="icon">🌙 📊</div>
+        <h1>Sleep Regularity Check</h1>
+        <p>Answer four quick questions about your last two nights of sleep to estimate how regular your recent sleep timing has been.</p>
+      </div>
+
+      <div class="config-warn" id="config-warn">
+        Google Sheet connection is not configured yet. Results will still work locally, but the group histogram will only show this response.
+      </div>
+
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+
+      <form id="survey-form"></form>
+      <button class="btn-primary" id="submit-btn" disabled>See My Sleep Regularity →</button>
+    </div>
+
+    <div id="v-results" class="view" style="display:none">
+      <div class="results-header">
+        <div class="badge" id="r-badge"></div>
+        <div class="big-score" id="r-score"></div>
+        <div class="score-label">2-day sleep regularity estimate</div>
+        <div class="type-name" id="r-name"></div>
+        <p class="type-desc" id="r-desc"></p>
+      </div>
+
+      <div class="results-card">
+        <h3>How your result compares</h3>
+        <p class="sub">This histogram updates as more people complete the survey. Scores are binned in 10-point intervals.</p>
+        <div class="resp-count" id="resp-count"></div>
+        <div class="chart-wrap">
+          <canvas id="score-chart"></canvas>
+        </div>
+        <div class="legend">
+          <div class="leg-item"><span class="leg-swatch" style="background:var(--very-irregular)"></span>Very irregular</div>
+          <div class="leg-item"><span class="leg-swatch" style="background:var(--irregular)"></span>Irregular</div>
+          <div class="leg-item"><span class="leg-swatch" style="background:var(--moderate)"></span>Fairly regular</div>
+          <div class="leg-item"><span class="leg-swatch" style="background:var(--regular)"></span>Highly regular</div>
+        </div>
+      </div>
+
+      <div class="results-card">
+        <h3>Important note</h3>
+        <p class="sub" style="margin-bottom:0">
+          This is a simplified 2-day estimate inspired by the Sleep Regularity Index. It compares whether you were asleep or awake at the same clock times across the last two nights. It is not a clinical sleep assessment and is not the formal multi-day SRI.
+        </p>
+      </div>
+
+      <button class="btn-outline" onclick="resetSurvey()">Take survey again</button>
+    </div>
+
+  </div>
+
+  <script>
+    // ════════════════════════════════════════════════════════════════════════════════
+    // GOOGLE SHEET CONFIG
+    // ════════════════════════════════════════════════════════════════════════════════
+    // To connect this to Google Sheets, create a Google Apps Script web app that:
+    // 1) accepts POST requests and writes the submitted JSON to your Sheet
+    // 2) accepts GET requests and returns JSON like: { responses: [{ score: 82 }, ...] }
+    // Then paste the deployed web app URL below.
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzuJ9AllVKzilNH_6eOn5CHbqyVNdaXIiRImPin1yr29ZeDv575FOtwJ07Sl7A4NGla/exec";
+    const sheetReady = GOOGLE_SCRIPT_URL && !GOOGLE_SCRIPT_URL.includes("YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL");
+
+    if (!sheetReady) document.getElementById("config-warn").style.display = "block";
+
+    // ════════════════════════════════════════════════════════════════════════════════
+    // QUESTIONS
+    // ════════════════════════════════════════════════════════════════════════════════
+    const QUESTIONS = [
+      {
+        id: "sleep1",
+        text: "What time did you fall asleep 2 nights ago?",
+        hint: "Use your best estimate. For example, if you got into bed at 10:30 PM but fell asleep around 11:00 PM, enter 11:00 PM."
+      },
+      {
+        id: "wake1",
+        text: "What time did you wake up yesterday?",
+        hint: "Use the time you woke up for the day, not brief awakenings during the night."
+      },
+      {
+        id: "sleep2",
+        text: "What time did you fall asleep last night?",
+        hint: "Use your best estimate of sleep onset."
+      },
+      {
+        id: "wake2",
+        text: "What time did you wake up today?",
+        hint: "Use the time you woke up for the day."
+      }
+    ];
+
+    const TYPES = [
+      {
+        min: -100, max: -50, label: "Very Irregular", color: "#ef4444",
+        desc: "Your sleep timing was almost opposite across the last two nights. You were asleep and awake at very different clock times."
+      },
+      {
+        min: -49, max: 0, label: "Irregular", color: "#f59e0b",
+        desc: "Your sleep and wake timing changed substantially across the last two nights."
+      },
+      {
+        min: 1, max: 50, label: "Fairly Regular", color: "#3b82f6",
+        desc: "Your sleep timing showed some consistency, but there was still noticeable variation between the two nights."
+      },
+      {
+        min: 51, max: 100, label: "Highly Regular", color: "#10b981",
+        desc: "Your sleep timing was very consistent across the last two nights. You were asleep and awake at similar clock times on both days."
+      }
+    ];
+
+    const form = document.getElementById("survey-form");
+    const answers = {};
+
+    QUESTIONS.forEach((q, i) => {
+      const card = document.createElement("div");
+      card.className = "q-card";
+      card.innerHTML = `
+        <div class="q-num">Question ${i + 1} of ${QUESTIONS.length}</div>
+        <div class="q-text">${q.text}</div>
+        <input type="time" id="${q.id}" name="${q.id}" required>
+        <div class="hint">${q.hint}</div>
+      `;
+      form.appendChild(card);
+    });
+
+    form.addEventListener("input", e => {
+      if (e.target && e.target.type === "time") {
+        answers[e.target.name] = e.target.value;
+        updateProgress();
+      }
+    });
+
+    function updateProgress() {
+      const n = Object.keys(answers).filter(k => answers[k]).length;
+      const pct = (n / QUESTIONS.length) * 100;
+      document.getElementById("progress-fill").style.width = `${pct}%`;
+      document.getElementById("submit-btn").disabled = n < QUESTIONS.length;
+    }
+
+    // ════════════════════════════════════════════════════════════════════════════════
+    // SRI-LIKE CALCULATION
+    // ════════════════════════════════════════════════════════════════════════════════
+    function timeToMinute(t) {
+      const [h, m] = t.split(":").map(Number);
+      return h * 60 + m;
+    }
+
+    function buildSleepVector(sleepTime, wakeTime) {
+      const sleep = timeToMinute(sleepTime);
+      const wake = timeToMinute(wakeTime);
+      const day = new Array(1440).fill(0); // 0 = awake, 1 = asleep
+
+      // Normal overnight sleep, e.g. 23:00 to 07:00.
+      if (wake <= sleep) {
+        for (let i = sleep; i < 1440; i++) day[i] = 1;
+        for (let i = 0; i < wake; i++) day[i] = 1;
+      } else {
+        // Allows unusual same-day sleep periods, e.g. 02:00 to 10:00.
+        for (let i = sleep; i < wake; i++) day[i] = 1;
+      }
+      return day;
+    }
+
+    function calculateSleepRegularityEstimate(a) {
+      const day1 = buildSleepVector(a.sleep1, a.wake1);
+      const day2 = buildSleepVector(a.sleep2, a.wake2);
+
+      let matches = 0;
+      for (let i = 0; i < 1440; i++) {
+        if (day1[i] === day2[i]) matches++;
+      }
+
+      const agreement = matches / 1440;
+
+      // Inspired by the formal SRI scaling: -100 + 200 × agreement.
+      // SRI-like score: -100 = opposite timing, 0 = random-ish agreement, 100 = identical timing.
+      const score = Math.round(-100 + 200 * agreement);
+      const rawAgreementPercent = Math.round(agreement * 1000) / 10;
+
+      return { score, rawAgreementPercent };
+    }
+
+    function getType(score) {
+      return TYPES.find(t => score >= t.min && score <= t.max) || TYPES[TYPES.length - 1];
+    }
+
+    // ════════════════════════════════════════════════════════════════════════════════
+    // SUBMIT + RESULTS
+    // ════════════════════════════════════════════════════════════════════════════════
+    let userScore = null;
+    let chart = null;
+
+    document.getElementById("submit-btn").addEventListener("click", async () => {
+      const result = calculateSleepRegularityEstimate(answers);
+      userScore = result.score;
+
+      const payload = {
+        score: result.score,
+        rawAgreementPercent: result.rawAgreementPercent,
+        sleep_2_nights_ago: answers.sleep1,
+        wake_yesterday: answers.wake1,
+        sleep_yesterday: answers.sleep2,
+        wake_today: answers.wake2,
+        ts: new Date().toISOString()
+      };
+
+      if (sheetReady) {
+        try {
+          await fetch(GOOGLE_SCRIPT_URL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+        } catch (e) {
+          console.warn("Save failed:", e);
+        }
+      }
+
+      showResults(result.score);
+    });
+
+    function showResults(score) {
+      const type = getType(score);
+      const badge = document.getElementById("r-badge");
+      badge.textContent = type.label;
+      badge.style.background = type.color + "28";
+      badge.style.color = type.color;
+
+      document.getElementById("r-score").textContent = score;
+      document.getElementById("r-name").textContent = type.label;
+      document.getElementById("r-desc").textContent = type.desc;
+
+      document.getElementById("v-survey").style.display = "none";
+      const rv = document.getElementById("v-results");
+      rv.style.display = "block";
+      rv.classList.remove("view"); void rv.offsetWidth; rv.classList.add("view");
+
+      buildChart();
+    }
+
+    // ════════════════════════════════════════════════════════════════════════════════
+    // HISTOGRAM
+    // ════════════════════════════════════════════════════════════════════════════════
+    const BIN_SIZE = 10;
+    const BIN_MIN = -100;
+    const BIN_MAX = 100;
+    const BIN_COUNT = (BIN_MAX - BIN_MIN) / BIN_SIZE;
+
+    const BIN_LABELS = Array.from({ length: BIN_COUNT }, (_, i) => {
+      const start = BIN_MIN + i * BIN_SIZE;
+      const end = start + BIN_SIZE;
+      return `${start} to ${end}`;
+    });
+
+    function binIndex(score) {
+      if (score === BIN_MAX) return BIN_COUNT - 1;
+      const idx = Math.floor((score - BIN_MIN) / BIN_SIZE);
+      return Math.min(BIN_COUNT - 1, Math.max(0, idx));
+    }
+
+    function typeForBin(i) {
+      const midpoint = BIN_MIN + i * BIN_SIZE + BIN_SIZE / 2;
+      return getType(Math.round(midpoint));
+    }
+
+    function barColors() {
+      return BIN_LABELS.map((_, i) => {
+        const type = typeForBin(i);
+        return binIndex(userScore) === i ? "#ffffff" : type.color + "bb";
+      });
+    }
+
+    function borderColors() {
+      return BIN_LABELS.map((_, i) => {
+        const type = typeForBin(i);
+        return binIndex(userScore) === i ? "#ffffff" : type.color;
+      });
+    }
+
+    async function fetchScores() {
+      if (!sheetReady) return [userScore];
+
+      try {
+        const res = await fetch(GOOGLE_SCRIPT_URL);
+        const json = await res.json();
+
+        let scores = [];
+
+        // Preferred Apps Script format: { scores: [-100, 0, 33, ...] }
+        if (Array.isArray(json.scores)) {
+          scores = json.scores.map(Number);
+        }
+
+        // Alternative Apps Script format: { responses: [{ score: 33 }, ...] }
+        else if (Array.isArray(json.responses)) {
+          scores = json.responses.map(r => Number(r.score ?? r.Score));
+        }
+
+        // Alternative direct array format: [{ score: 33 }, ...] or [-100, 0, 33]
+        else if (Array.isArray(json)) {
+          scores = json.map(r => typeof r === "number" ? r : Number(r.score ?? r.Score));
+        }
+
+        scores = scores.filter(s => Number.isFinite(s) && s >= BIN_MIN && s <= BIN_MAX);
+
+        // Include the current user's score immediately in case the Sheet has not refreshed yet.
+        if (Number.isFinite(userScore)) scores.push(userScore);
+
+        return scores;
+      } catch (e) {
+        console.warn("Could not load Sheet data:", e);
+        return [userScore];
+      }
+    }
+
+    async function buildChart() {
+      const ctx = document.getElementById("score-chart");
+      const scores = await fetchScores();
+      const counts = new Array(BIN_COUNT).fill(0);
+
+      scores.forEach(s => counts[binIndex(s)]++);
+
+      if (chart) chart.destroy();
+
+      chart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: BIN_LABELS,
+          datasets: [{
+            data: counts,
+            backgroundColor: barColors(),
+            borderColor: borderColors(),
+            borderWidth: BIN_LABELS.map((_, i) => binIndex(userScore) === i ? 2 : 1),
+            borderRadius: 4,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: { duration: 350 },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                title: items => `Score ${items[0].label}`,
+                label: ctx => {
+                  const n = ctx.raw;
+                  const you = binIndex(userScore) === ctx.dataIndex ? " · your range" : "";
+                  return `${n} response${n !== 1 ? "s" : ""}${you}`;
+                }
+              },
+              backgroundColor: "#1e293b",
+              borderColor: "#334155",
+              borderWidth: 1,
+              titleColor: "#f1f5f9",
+              bodyColor: "#94a3b8",
+              padding: 10,
+            }
+          },
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: "2-day sleep regularity estimate, -100 to 100",
+                color: "#475569",
+                font: { size: 10.5 }
+              },
+              ticks: {
+                color: "#64748b",
+                font: { size: 10 },
+                maxRotation: 0,
+                autoSkip: true,
+                maxTicksLimit: 10
+              },
+              grid: { display: false }
+            },
+            y: {
+              beginAtZero: true,
+              ticks: { color: "#64748b", precision: 0 },
+              grid: { color: "#33415555" }
+            }
+          }
+        }
+      });
+
+      document.getElementById("resp-count").innerHTML =
+        `<strong>${scores.length}</strong> total response${scores.length !== 1 ? "s" : ""} so far`;
+    }
+
+    function resetSurvey() {
+      if (chart) { chart.destroy(); chart = null; }
+      Object.keys(answers).forEach(k => delete answers[k]);
+      document.querySelectorAll("input[type=time]").forEach(el => { el.value = ""; });
+      userScore = null;
+      document.getElementById("progress-fill").style.width = "0%";
+      document.getElementById("submit-btn").disabled = true;
+      document.getElementById("v-results").style.display = "none";
+      const sv = document.getElementById("v-survey");
+      sv.style.display = "block";
+      sv.classList.remove("view"); void sv.offsetWidth; sv.classList.add("view");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  </script>
+</body>
+
+</html>
