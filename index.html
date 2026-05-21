@@ -639,9 +639,6 @@
         const scores = raw
           .map(r => typeof r === "number" ? r : Number(r.score))
           .filter(s => Number.isFinite(s) && s >= -100 && s <= 100);
-
-        // Include the current user's score immediately in case the Sheet has not refreshed yet.
-        if (Number.isFinite(userScore)) scores.push(userScore);
         return scores;
       } catch (e) {
         console.warn("Could not load Sheet data:", e);
