@@ -13,8 +13,8 @@
     :root {
       --highly-irregular: #ef4444;
       --irregular: #f59e0b;
-      --fairly-irregular: #facc15;
-      --moderately-regular: #87cc07;
+      --fairly-irregular: #faee15;
+      --somewhat-regular: #87cc07;
       --fairly-regular: #129c25;
       --highly-regular: #0284c7;
       --bg: #0f172a;
@@ -332,7 +332,7 @@
 
       <div class="results-card">
         <h3>How your result compares</h3>
-        <p class="sub">This histogram updates as more people complete the survey. Scores are binned in 5-point intervals.</p>
+        <p class="sub">This histogram updates as more people complete the survey. Scores are binned in 10-point intervals.</p>
         <div class="resp-count" id="resp-count"></div>
         <div class="chart-wrap">
           <canvas id="score-chart"></canvas>
@@ -340,8 +340,8 @@
         <div class="legend">
           <div class="leg-item"><span class="leg-swatch" style="background:#ef4444"></span>Highly irregular</div>
           <div class="leg-item"><span class="leg-swatch" style="background:#f59e0b"></span>Irregular</div>
-          <div class="leg-item"><span class="leg-swatch" style="background:#fde047"></span>Fairly irregular</div>
-          <div class="leg-item"><span class="leg-swatch" style="background:#87cc07"></span>Moderately regular</div>
+          <div class="leg-item"><span class="leg-swatch" style="background:#faee15"></span>Fairly irregular</div>
+          <div class="leg-item"><span class="leg-swatch" style="background:#87cc07"></span>Somewhat regular</div>
           <div class="leg-item"><span class="leg-swatch" style="background:#129c25"></span>Fairly regular</div>
           <div class="leg-item"><span class="leg-swatch" style="background:#0284c7"></span>Very regular</div>
         </div>
@@ -409,12 +409,12 @@
         desc: "Your sleep schedule showed low consistency across the last two nights, with noticeable shifts in sleep or wake timing."
       },
       {
-        min: 21, max: 40, label: "Fairly Irregular", color: "#fde047",
+        min: 21, max: 40, label: "Fairly Irregular", color: "#faee15",
         desc: "Your sleep timing showed some consistency, though there was still considerable variation between the two nights."
       },
       {
-        min: 41, max: 60, label: "Moderately Regular", color: "#3b82f6",
-        desc: "Your sleep and wake timing were moderately consistent across the last two nights."
+        min: 41, max: 60, label: "Somewhat Regular", color: "#3b82f6",
+        desc: "Your sleep and wake timing were somewhat consistent over the last two nights."
       },
       {
         min: 61, max: 80, label: "Fairly Regular", color: "#14b8a6",
@@ -599,7 +599,7 @@
 
     if (lower < 60)
         return { color: getComputedStyle(document.documentElement)
-        .getPropertyValue('--moderately-regular') };
+        .getPropertyValue('--somewhat-regular') };
 
     if (lower < 80)
         return { color: getComputedStyle(document.documentElement)
@@ -676,7 +676,7 @@
                 ? 4
                 : 1
                 ),
-                borderRadius: 4,
+                borderRadius: 3,
             }]
         },
         options: {
