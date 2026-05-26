@@ -513,6 +513,9 @@
     let userScore = null;
     let chart = null;
 
+    // monitor mode
+    const resultsOnly = window.location.search.includes("results");
+
     document.getElementById("submit-btn").addEventListener("click", async () => {
       const result = calculateSleepRegularityEstimate(answers);
       userScore = result.score;
@@ -664,12 +667,12 @@
                 backgroundColor: barColors(),
 
                 borderColor: BIN_LABELS.map((_, i) =>
-                    binIndex(userScore) === i
+                    userScore !== -999 && binIndex(userScore) === i
                     ? "#ffffff"
                     : borderColors()[i]
                 ),
                 borderWidth: BIN_LABELS.map((_, i) =>
-                binIndex(userScore) === i
+                userScore !== -999 && binIndex(userScore) === i
                 ? 4
                 : 1
                 ),
@@ -730,6 +733,40 @@
 
       document.getElementById("resp-count").innerHTML =
         `<strong>${scores.length}</strong> total response${scores.length !== 1 ? "s" : ""} so far`;
+    }
+
+    // ═══════════════════════════════════════════════
+    // LIVE RESULTS DISPLAY MODE
+    // Open:
+    // ?results
+    // Example:
+    // george-schulz.github.io/sleep-regularity-survey/?results
+    // ═══════════════════════════════════════════════
+
+    async function showLiveResults() {
+
+      userScore = -999; // disable white outline
+
+      document.getElementById("v-survey").style.display = "none";
+      document.getElementById("v-results").style.display = "block";
+
+      document.querySelector(".results-header").innerHTML = `
+        <div class="big-score">🌙</div>
+        <div class="type-name">Live Sleep Regularity Results</div>
+        <p class="type-desc">
+          This display updates automatically as participants submit responses.
+        </p>
+      `;
+
+      await buildChart();
+
+      setInterval(async () => {
+        await buildChart();
+      }, 10000); // refresh every 10 s
+    }
+
+    if (resultsOnly) {
+      showLiveResults();
     }
 
     function resetSurvey() {
