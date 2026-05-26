@@ -735,6 +735,20 @@
         `<strong>${scores.length}</strong> total response${scores.length !== 1 ? "s" : ""} so far`;
     }
 
+    function resetSurvey() {
+      if (chart) { chart.destroy(); chart = null; }
+      Object.keys(answers).forEach(k => delete answers[k]);
+      document.querySelectorAll("input[type=time]").forEach(el => { el.value = ""; });
+      userScore = null;
+      document.getElementById("progress-fill").style.width = "0%";
+      document.getElementById("submit-btn").disabled = true;
+      document.getElementById("v-results").style.display = "none";
+      const sv = document.getElementById("v-survey");
+      sv.style.display = "block";
+      sv.classList.remove("view"); void sv.offsetWidth; sv.classList.add("view");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
     // ═══════════════════════════════════════════════
     // LIVE RESULTS DISPLAY MODE
     // Open:
@@ -769,19 +783,6 @@
       showLiveResults();
     }
 
-    function resetSurvey() {
-      if (chart) { chart.destroy(); chart = null; }
-      Object.keys(answers).forEach(k => delete answers[k]);
-      document.querySelectorAll("input[type=time]").forEach(el => { el.value = ""; });
-      userScore = null;
-      document.getElementById("progress-fill").style.width = "0%";
-      document.getElementById("submit-btn").disabled = true;
-      document.getElementById("v-results").style.display = "none";
-      const sv = document.getElementById("v-survey");
-      sv.style.display = "block";
-      sv.classList.remove("view"); void sv.offsetWidth; sv.classList.add("view");
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
   </script>
 </body>
 
